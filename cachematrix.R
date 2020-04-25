@@ -26,7 +26,7 @@ cacheSolve <- function(x, ...) {
                 return(m)
         }
         data <- x[["mat"]]
-        m <- solve(data)
+        m <- solve(data, ...)
         x$setminverse(m)
         m
 }
