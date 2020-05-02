@@ -20,29 +20,36 @@ rankall <- function(outcome, num = "best") {
         ## For each state, find the hospital of the given rank
         if(outcome == "heart attack") {
                 #11
+                ds <- ds[!is.na(ds$Hospital.30.Day.Death..Mortality..Rates.from.Heart.Attack),]
+                dsByState <- split(ds, ds$State)
                 dsByStateOrdered <- lapply(dsByState, function(x) x[order(x$Hospital.30.Day.Death..Mortality..Rates.from.Heart.Attack, x$Hospital.Name),] ) 
         } else if (outcome == "heart failure") {
                 #17
+                ds <- ds[!is.na(ds$Hospital.30.Day.Death..Mortality..Rates.from.Heart.Failure),]
+                dsByState <- split(ds, ds$State)
                 dsByStateOrdered <- lapply(dsByState, function(x) x[order(x$Hospital.30.Day.Death..Mortality..Rates.from.Heart.Failure, x$Hospital.Name),] ) 
         } else if (outcome == "pneumonia") {
                 #23
+                ds <- ds[!is.na(ds$Hospital.30.Day.Death..Mortality..Rates.from.Pneumonia),]
+                dsByState <- split(ds, ds$State)
                 dsByStateOrdered <- lapply(dsByState, function(x) x[order(x$Hospital.30.Day.Death..Mortality..Rates.from.Pneumonia, x$Hospital.Name),] ) 
         } else {
                 stop("")
         }
         ## Return a data frame with the hospital names and the
         ## (abbreviated) state name
-        if(is.character(num)) {
-                if(num == "worst") {
-                        num <- nrow(res3)
-                } else if(num == "best") {
-                        num <- 1
-                }
-        }
         
-        dsByStateFiltered <- lapply(dsByStateOrdered, function(x) x$Hospital.Name[num])
+        dsByStateFiltered <- lapply(dsByStateOrdered, function(x) {
+                if(is.character(num)) {
+                        if(num == "worst") {
+                                num <- nrow(x) 
+                        } else if(num == "best") {
+                                num <- 1
+                        }
+                }
+                hn <- x$Hospital.Name[num]
+                })
         stateList <- names(dsByStateFiltered)
-        print(stateList)
         df <- as.data.frame(dsByStateFiltered,stringsAsFactors=FALSE)
         df <- rbind(df, stateList)
         row.names(df) <- c("Hospital.Name", "State")
